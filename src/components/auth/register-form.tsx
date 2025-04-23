@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import type { UserRole } from "@/types/supabase" // Import the UserRole type
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("")
@@ -42,8 +43,28 @@ export default function RegisterForm() {
         },
       })
 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        setError("User not found")
+        return
+      }
+
+      // Set user role "user"
+      const { error: userRoleError } = await supabase.from("user_roles").insert({
+        user_id: user.id,
+        role: "user",
+      })
+
       if (error) {
         setError(error.message)
+        return
+      }
+
+      if (userRoleError) {
+        setError(userRoleError.message)
         return
       }
 

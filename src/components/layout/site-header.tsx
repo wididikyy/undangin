@@ -1,38 +1,79 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import type { User } from "@supabase/supabase-js"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Heart, User, LogOut } from "lucide-react"
+import { LogOut, UserCircle } from "lucide-react"
 
 export default function SiteHeader() {
-  const pathname = usePathname()
   const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
+  useEffect(() => {
+    async function getUser() {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (user) {
+          setUser(user)
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    getUser()
+  }, [])
+
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/")
-    router.refresh()
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error("Error signing out:", error)
+      } else {
+        router.push("/login")
+      }
+    } catch (error) {
+      console.error("Error signing out:", error)
+    }
   }
 
-  const isLoggedIn = pathname.startsWith("/dashboard")
+  if (loading) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="font-bold text-xl">Undangin</span>
+          </Link>
+          <nav className="flex items-center gap-4">
+            {/* Loading state */}
+          </nav>
+        </div>
+      </header>
+    )
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Heart className="h-6 w-6 text-rose-500" />
-          <span className="font-bold text-xl">WeddingInvite</span>
+          <span className="font-bold text-xl">Undangin</span>
         </Link>
         <nav className="flex items-center gap-4">
-          {isLoggedIn ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                 {user?.email ? user?.email : "User"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

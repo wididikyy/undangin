@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import Sidebar from "@/components/layout/sidebar"
@@ -6,7 +6,7 @@ import Sidebar from "@/components/layout/sidebar"
 export default async function DashboardLayout({
   children,
 }: {
-  children: ReactNode
+  children: React.ReactNode
 }) {
   const supabase = await createClient()
   const {
@@ -23,7 +23,7 @@ export default async function DashboardLayout({
     .eq('user_id', user.id)
     .single()
 
-  if (!userRole || userRole.role !== 'user') {
+  if (!userRole || userRole.role !== 'admin') {
     redirect('/unauthorized')
   }
 

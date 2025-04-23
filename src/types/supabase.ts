@@ -114,6 +114,26 @@ export interface Database {
                     created_at?: string
                 }
             }
+            user_roles: {
+                Row: {
+                    id: number
+                    user_id: string
+                    role: string
+                    created_at: string
+                }
+                Insert: {
+                    id?: number
+                    user_id: string
+                    role: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: number
+                    user_id?: string
+                    role?: string
+                    created_at?: string
+                }
+            }
         }
     }
 }
@@ -121,3 +141,4 @@ export interface Database {
 export type Invitation = Database["public"]["Tables"]["invitations"]["Row"]
 export type Template = Database["public"]["Tables"]["templates"]["Row"]
 export type Guest = Database["public"]["Tables"]["guests"]["Row"]
+export type UserRole = Database["public"]["Tables"]["user_roles"]["Row"]
